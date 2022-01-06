@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
 
@@ -9,21 +9,65 @@ class Quiz extends StatefulWidget {
   _QuizState createState() => _QuizState();
 }
 
+bool switchValue1 = false;
+bool switchValue2 = false;
+bool switchValue3 = false;
+bool switchValue4 = false;
+
 class _QuizState extends State<Quiz> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          actions: [IconButton(onPressed: () {}, icon: Icon(Icons.settings))],
+          backgroundColor: Colors.blue,
+          actions: [
+            IconButton(
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return Dialog(
+                          insetPadding: EdgeInsets.symmetric(
+                              vertical: MediaQuery.of(context).size.width / 1.7,
+                              horizontal: 20),
+                          child: Scaffold(
+                            appBar: AppBar(
+                              leading: IconButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  icon: Icon(Icons.close)),
+                            ),
+                            body: SizedBox(
+                              // height: 50,
+                              child: Column(
+                                children: [
+                                  dialogListTile(
+                                      'Reversed review', switchValue1),
+                                  dialogListTile(
+                                      'Reveal random side', switchValue2),
+                                  dialogListTile(
+                                      'Show only image', switchValue3),
+                                  dialogListTile(
+                                      'Auto read cards', switchValue4)
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      });
+                },
+                icon: Icon(Icons.settings))
+          ],
         ),
         backgroundColor: Colors.blue,
         body: SingleChildScrollView(
           child: Column(
             children: [
               Container(
-                height: 400,
+                height: 350,
                 color: Colors.white,
-                margin: EdgeInsets.all(6.0),
+                margin: EdgeInsets.all(7.0),
                 child: Center(
                   child: Text('Terminator'),
                 ),
@@ -35,6 +79,19 @@ class _QuizState extends State<Quiz> {
             ],
           ),
         ));
+  }
+
+  ListTile dialogListTile(String title, bool switchValue) {
+    return ListTile(
+      leading: Text(title),
+      trailing: Switch(
+          value: switchValue,
+          onChanged: (switchValue) {
+            setState(() {
+              switchValue = !switchValue;
+            });
+          }),
+    );
   }
 }
 
@@ -52,11 +109,13 @@ class OptionWidget extends StatefulWidget {
 class _OptionWidgetState extends State<OptionWidget>
     with SingleTickerProviderStateMixin {
   AnimationController? controller;
+  bool visible = false;
+  Color containerColor = Colors.white;
 
   @override
   void initState() {
     controller = AnimationController(
-        duration: const Duration(milliseconds: 500), vsync: this);
+        duration: const Duration(milliseconds: 300), vsync: this);
     super.initState();
   }
 
@@ -68,7 +127,7 @@ class _OptionWidgetState extends State<OptionWidget>
 
   @override
   Widget build(BuildContext context) {
-    final Animation<double> offsetAnimation = Tween(begin: 0.0, end: 24.0)
+    final Animation<double> offsetAnimation = Tween(begin: 0.0, end: 7.0)
         // Tween (short of inBetween) animates between begin and end.
         .chain(CurveTween(curve: Curves.elasticIn))
         // ignore: todo
@@ -92,18 +151,33 @@ class _OptionWidgetState extends State<OptionWidget>
           return Container(
             // margin: EdgeInsets.fromLTRB(6, 6, 6, 0),
             //! PROBLEM SOLVED:- shake Animation needs space given in end of Tween to shake.
-            margin: EdgeInsets.symmetric(horizontal: 24.0),
-            padding: EdgeInsets.only(
-                left: offsetAnimation.value + 24.0,
-                right: 24.0 - offsetAnimation.value),
-            color: Colors.white,
-            height: 50,
-            child: Center(
-              child: GestureDetector(
-                  onTap: () {
-                    controller!.forward(from: 0.0);
-                  },
-                  child: Text(widget.textInput)),
+            // margin: EdgeInsets.symmetric(horizontal: 7.0),
+            margin: EdgeInsets.only(
+                left: offsetAnimation.value + 7.0,
+                right: 7.0 - offsetAnimation.value,
+                bottom: 7.0),
+            child: Column(
+              children: [
+                Container(
+                  height: 50,
+                  color: containerColor,
+                  child: Center(
+                    child: GestureDetector(
+                        onTap: () {
+                          controller!.forward(from: 0.0);
+                          visible = true;
+                          containerColor = Colors.red;
+                        },
+                        child: Text(widget.textInput)),
+                  ),
+                ),
+                Visibility(
+                    visible: visible,
+                    child: Container(
+                      color: containerColor,
+                      height: 50,
+                    ))
+              ],
             ),
           );
         });
