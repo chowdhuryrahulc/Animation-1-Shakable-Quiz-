@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 class Quiz extends StatefulWidget {
@@ -14,7 +16,23 @@ bool switchValue2 = false;
 bool switchValue3 = false;
 bool switchValue4 = false;
 
-class _QuizState extends State<Quiz> {
+class _QuizState extends State<Quiz> with SingleTickerProviderStateMixin {
+  AnimationController? slideAnimationController;
+
+  @override
+  void initState() {
+    slideAnimationController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 1000));
+    slideAnimationController!.forward();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    slideAnimationController!.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,21 +80,25 @@ class _QuizState extends State<Quiz> {
         ),
         backgroundColor: Colors.blue,
         body: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                height: 350,
-                color: Colors.white,
-                margin: EdgeInsets.all(7.0),
-                child: Center(
-                  child: Text('Terminator'),
+          child: SlideTransition(
+            position: Tween<Offset>(begin: Offset(-1, 0), end: Offset.zero)
+                .animate(slideAnimationController!),
+            child: Column(
+              children: [
+                Container(
+                  height: 350,
+                  color: Colors.white,
+                  margin: EdgeInsets.all(7.0),
+                  child: Center(
+                    child: Text('Terminator'),
+                  ),
                 ),
-              ),
-              OptionWidget('Option 1'),
-              OptionWidget('Option 2'),
-              OptionWidget('Option 3'),
-              OptionWidget('Option 4'),
-            ],
+                OptionWidget('Option 1'),
+                OptionWidget('Option 2'),
+                OptionWidget('Option 3'),
+                OptionWidget('Option 4'),
+              ],
+            ),
           ),
         ));
   }
